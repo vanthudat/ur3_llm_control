@@ -1,0 +1,11 @@
+llm_planner:
+  ros__parameters:
+    router_base_url: http://localhost:20128/v1
+    # Empty means: choose the first model returned by GET /v1/models.
+    # A fixed 9Router model ID is safer for a repeatable demonstration.
+    model: "ag/gemini-3.8-flash-high"
+    api_key_environment: NINE_ROUTER_API_KEY
+    request_timeout: 45.0
+    command_topic: /user_command
+    plan_topic: /validated_plan
+    status_topic: /task_status
