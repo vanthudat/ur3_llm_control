@@ -54,9 +54,14 @@ export ROS_DOMAIN_ID=24
 Gửi một câu lệnh, ví dụ các câu theo phân công cá nhân (A → vàng, B → xanh dương, C → đỏ):
 
 ```bash
-ros2 run ur3_llm_control command "Đưa khối màu vàng vào vùng A."
-ros2 run ur3_llm_control command "Pick up the blue cube and place it in zone B."
-ros2 run ur3_llm_control command "Vui lòng đặt khối màu đỏ vào vùng C."
+ros2 run ur3_llm_control command “Move the yellow cube to zone A.”
+ros2 run ur3_llm_control command “Đưa khối màu vàng vào vùng A.”
+ 
+ros2 run ur3_llm_control command “Pick up the blue cube and place it in zone B.”
+ros2 run ur3_llm_control command “Lấy khối màu xanh dương và đặt vào vùng B.”
+
+ros2 run ur3_llm_control command “Please put the red cube in zone C.”
+ros2 run ur3_llm_control command “Vui lòng đặt khối màu đỏ vào vùng C.”
 ```
 
 Mỗi lần chỉ gửi một lệnh và chờ lệnh trước chạy xong. Terminal sẽ báo `RESULT: SUCCESS` khi hoàn tất hoặc `RESULT: FAILED` khi có lỗi. Có thể xem trạng thái chi tiết bằng:
