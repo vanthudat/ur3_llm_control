@@ -83,10 +83,10 @@ private:
   std::string held_object_;
   std::string frame_id_;
   std::string home_target_;
-  std::string ik_seed_target_;
   std::string end_effector_link_;
   double cube_size_;
   double grasp_offset_;
+  std::string ik_seed_target_;
   double approach_height_;
   double gripper_open_position_;
   double gripper_closed_position_;

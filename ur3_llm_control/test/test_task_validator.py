@@ -75,3 +75,33 @@ def test_accepts_optional_robot_skills():
         ]
     }
     assert validate_plan(plan) == plan
+
+
+def test_accepts_three_object_arrangement_plan():
+    plan = {
+        "plan": [
+            {"skill": "pick", "object": "yellow_cube"},
+            {"skill": "place", "object": "yellow_cube", "zone": "zone_a"},
+            {"skill": "pick", "object": "blue_cube"},
+            {"skill": "place", "object": "blue_cube", "zone": "zone_b"},
+            {"skill": "pick", "object": "red_cube"},
+            {"skill": "place", "object": "red_cube", "zone": "zone_c"},
+            {"skill": "home"},
+        ]
+    }
+    assert validate_plan(plan) == plan
+
+
+def test_rejects_home_between_multi_object_steps():
+    with pytest.raises(PlanValidationError, match="final step"):
+        validate_plan(
+            {
+                "plan": [
+                    {"skill": "pick", "object": "yellow_cube"},
+                    {"skill": "place", "object": "yellow_cube", "zone": "zone_a"},
+                    {"skill": "home"},
+                    {"skill": "pick", "object": "blue_cube"},
+                    {"skill": "place", "object": "blue_cube", "zone": "zone_b"},
+                ]
+            }
+        )

@@ -85,6 +85,8 @@ def validate_plan(value: Any) -> dict[str, list[dict[str, str]]]:
                     f"{label} must place the object picked immediately before it"
                 )
             held_object = None
+        elif skill == "home" and index != len(steps) - 1:
+            raise PlanValidationError(f"{label} must be the final step")
 
         normalized.append(dict(raw_step))
 

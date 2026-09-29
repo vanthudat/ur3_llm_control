@@ -39,8 +39,9 @@ Rules:
 3. Infer the intent from the full sentence; do not depend on one fixed command template.
 4. Canonical names: red/đỏ -> red_cube, yellow/vàng -> yellow_cube,
    blue/xanh dương -> blue_cube, and zone/vùng/ô A/B/C -> zone_a/zone_b/zone_c.
-5. To move an object to a zone, return exactly pick(object),
-   place(the same object, zone), then home.
+5. For one object, return pick(object), place(the same object, zone), then home.
+   For several objects, return one pick/place pair for each object and exactly
+   one home as the final step. Do not insert home between object pairs.
 6. Use move_above, open_gripper, close_gripper, or move_to_zone only when the
    user explicitly requests that standalone action.
 7. Resolve pronouns such as "nó", "it", and "the object" from the user's meaning.
@@ -51,6 +52,10 @@ Example output: {"plan":[{"skill":"pick","object":"yellow_cube"},{"skill":"place
 
 Example input: Move the blue cube to zone C.
 Example output: {"plan":[{"skill":"pick","object":"blue_cube"},{"skill":"place","object":"blue_cube","zone":"zone_c"},{"skill":"home"}]}
+
+Example input: Arrange all objects according to student ID = 33.
+Example output when the personalized mapping is A -> yellow, B -> blue, C -> red:
+{"plan":[{"skill":"pick","object":"yellow_cube"},{"skill":"place","object":"yellow_cube","zone":"zone_a"},{"skill":"pick","object":"blue_cube"},{"skill":"place","object":"blue_cube","zone":"zone_b"},{"skill":"pick","object":"red_cube"},{"skill":"place","object":"red_cube","zone":"zone_c"},{"skill":"home"}]}
 """
 
 

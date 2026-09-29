@@ -1,4 +1,5 @@
 #include <atomic>
+#include <chrono>
 #include <exception>
 #include <memory>
 #include <set>
@@ -100,6 +101,9 @@ std::string validatePlan(const nlohmann::json & root)
     } else {
       return label + " contains a non-whitelisted skill";
     }
+    if (skill == "home" && index + 1U != root.at("plan").size()) {
+      return label + " must be the final step";
+    }
     ++index;
   }
   if (!held_object.empty()) {
@@ -134,6 +138,10 @@ public:
   {
     const auto plan_topic = parameter("plan_topic", std::string("/validated_plan"));
     const auto status_topic = parameter("status_topic", std::string("/task_status"));
+    inter_object_pause_seconds_ = parameter("inter_object_pause_seconds", 2.0);
+    if (inter_object_pause_seconds_ < 0.0) {
+      throw std::runtime_error("inter_object_pause_seconds must be non-negative");
+    }
     status_publisher_ = node_->create_publisher<std_msgs::msg::String>(status_topic, 10);
     plan_subscription_ = node_->create_subscription<std_msgs::msg::String>(
       plan_topic, 10,
@@ -209,6 +217,19 @@ private:
           busy_ = false;
           return;
         }
+        const bool pause_before_next_pick =
+          skill == "place" && inter_object_pause_seconds_ > 0.0 &&
+          index + 1U < plan.at("plan").size() &&
+          plan.at("plan").at(index + 1U).at("skill").get<std::string>() == "pick";
+        if (pause_before_next_pick) {
+          RCLCPP_INFO(
+            node_->get_logger(), "Pausing %.1f seconds before the next object.",
+            inter_object_pause_seconds_);
+          publishStatus("EXECUTION: pause " +
+            std::to_string(inter_object_pause_seconds_) + " seconds before next pick");
+          std::this_thread::sleep_for(
+            std::chrono::duration<double>(inter_object_pause_seconds_));
+        }
         ++index;
       }
       RCLCPP_INFO(node_->get_logger(), "TASK SUCCESS");
@@ -227,6 +248,7 @@ private:
   std::shared_ptr<RobotSkills> robot_skills_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr plan_subscription_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr status_publisher_;
+  double inter_object_pause_seconds_{2.0};
   std::atomic_bool busy_{false};
 };
 }  // namespace ur3_llm_control

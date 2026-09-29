@@ -67,6 +67,17 @@ Mỗi lần chỉ gửi một lệnh và chờ lệnh trước chạy xong. Term
 ros2 topic echo /task_status
 ```
 
+### Lệnh nâng cao: sắp xếp toàn bộ vật thể
+
+Hệ thống hỗ trợ một lệnh tạo kế hoạch cho nhiều vật thể. Theo cấu hình sinh viên hiện tại, robot sẽ đưa khối vàng vào A, khối xanh dương vào B và khối đỏ vào C, sau đó trở về vị trí home:
+
+```bash
+ros2 run ur3_llm_control command "Arrange all objects according to student ID = 33."
+ros2 run ur3_llm_control command "Sắp xếp tất cả khối theo student ID = 33."
+```
+
+Kế hoạch gồm ba cặp `pick`/`place` và một `home()` duy nhất ở cuối. Robot dừng 2 giây sau mỗi lần đặt khối, trước khi gắp khối kế tiếp, và không về home giữa chừng. Các vùng đích trong scene khởi tạo đều trống; khi cần sắp xếp lại sau một lệnh trước đó, hãy khởi động lại scene để đưa các khối về vị trí ban đầu.
+
 ## 5. Đối tượng và vùng hợp lệ
 
 | Tên hiển thị | Tên hệ thống |

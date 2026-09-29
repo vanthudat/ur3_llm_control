@@ -5,10 +5,10 @@ skill_executor:
     frame_id: world
     home_target: up
     home_joint_positions: [0.0, -1.5707, 0.0, -1.5707, 0.0, 0.0]
-    ik_seed_target: test_configuration
     execute_motion: true
     sync_gazebo: true
     gazebo_set_pose_service: /world/llm_robot/set_pose
+    inter_object_pause_seconds: 2.0
 
     planning_time: 10.0
     planner_id: RRTConnectkConfigDefault
@@ -27,6 +27,7 @@ skill_executor:
 
     cube_size: 0.04
     grasp_offset: 0.116
+    ik_seed_target: test_configuration
     approach_height: 0.12
     tool_orientation: [1.0, 0.0, 0.0, 0.0]
     gripper_action: /gripper_controller/follow_joint_trajectory
