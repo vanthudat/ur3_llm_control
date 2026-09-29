@@ -19,7 +19,7 @@ source install/setup.bash
 
 ## 3. Khởi động hệ thống
 
-Mở **Terminal 1**. Thay `NINE_ROUTER_MODEL` bằng đúng model ID hiển thị trên 9Router của bạn.
+Mở **Terminal 1**. 
 
 ```bash
 source /opt/ros/humble/setup.bash
