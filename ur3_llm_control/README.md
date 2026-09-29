@@ -24,15 +24,13 @@ Mở **Terminal 1**. Thay `NINE_ROUTER_MODEL` bằng đúng model ID hiển th�
 ```bash
 source /opt/ros/humble/setup.bash
 source ~/ros2_ws/install/setup.bash
-
 export ROS_DOMAIN_ID=24
 export NINE_ROUTER_BASE_URL="http://localhost:20128/v1"
-export NINE_ROUTER_MODEL="cx/gpt-6-astra"
-read -rsp "Nhap 9Router API key: " NINE_ROUTER_API_KEY
-export NINE_ROUTER_API_KEY
-echo
+export NINE_ROUTER_MODEL="oc/muse-spark-1.3-contributor-free"
+export NINE_ROUTER_API_KEY="sk-3d97f003a0bdf37e-d5t80q-3be91b02"
 
 ros2 launch ur3_llm_control llm_robot.launch.py
+
 ```
 
 Lệnh này khởi động Gazebo, RViz, MoveIt, LLM planner và skill executor. Chờ robot về tư thế ban đầu trước khi gửi lệnh. Nếu dùng UR3 thay vì UR3e, chạy:
@@ -88,12 +86,3 @@ Kế hoạch gồm ba cặp `pick`/`place` và một `home()` duy nhất ở cu�
 | Vùng A, B, C | `zone_a`, `zone_b`, `zone_c` |
 
 Vị trí khối, vị trí vùng, chiều cao tiếp cận, vận tốc và gia tốc được cấu hình trong `config/scene.yaml`. Thông tin sinh viên và bài phân công nằm trong `config/student.yaml`.
-
-## 6. Chạy kiểm thử
-
-```bash
-cd ~/ros2_ws
-source /opt/ros/humble/setup.bash
-colcon test --packages-select ur3_llm_control
-colcon test-result --verbose
-```
