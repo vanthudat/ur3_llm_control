@@ -1,0 +1,50 @@
+skill_executor:
+  ros__parameters:
+    use_sim_time: true
+    planning_group: ur_manipulator
+    frame_id: world
+    home_target: up
+    home_joint_positions: [0.0, -1.5707, 0.0, -1.5707, 0.0, 0.0]
+    execute_motion: true
+    sync_gazebo: true
+    gazebo_set_pose_service: /world/llm_robot/set_pose
+    inter_object_pause_seconds: 2.0
+
+    planning_time: 10.0
+    planner_id: RRTConnectkConfigDefault
+    planning_attempts: 1
+    ik_timeout: 0.20
+    max_joint_delta: 3.05
+    transit_joint_margin: 0.20
+    cartesian_eef_step: 0.005
+    cartesian_jump_threshold: 0.0
+    min_cartesian_fraction: 0.98
+    gazebo_sync_period: 0.05
+    velocity_scale: 0.10
+    acceleration_scale: 0.10
+    cartesian_velocity_scale: 0.10
+    cartesian_acceleration_scale: 0.10
+
+    cube_size: 0.04
+    grasp_offset: 0.116
+    ik_seed_target: test_configuration
+    approach_height: 0.12
+    tool_orientation: [1.0, 0.0, 0.0, 0.0]
+    gripper_action: /gripper_controller/follow_joint_trajectory
+    gripper_open_position: 0.0
+    gripper_closed_position: 0.015
+    gripper_timeout: 5.0
+
+    table.position: [0.35, 0.0, 0.7075]
+    table.size: [0.55, 0.50, 0.025]
+
+    objects.red_cube: [0.25, 0.14, 0.742]
+    objects.yellow_cube: [0.25, 0.0, 0.742]
+    objects.blue_cube: [0.25, -0.14, 0.742]
+
+    zones.zone_a: [0.40, 0.14, 0.742]
+    zones.zone_b: [0.40, 0.0, 0.742]
+    zones.zone_c: [0.40, -0.14, 0.742]
+
+    plan_topic: /validated_plan
+    status_topic: /task_status
