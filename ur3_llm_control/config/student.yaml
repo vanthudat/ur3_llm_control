@@ -2,5 +2,6 @@ llm_planner:
   ros__parameters:
     student_name: "Nguyen Van An"
     student_id: "23020733"
+    assignment_id: 33
     task_index: 3
     personalized_demo: "Zone A -> yellow_cube; Zone B -> blue_cube; Zone C -> red_cube"

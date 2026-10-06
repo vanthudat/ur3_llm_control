@@ -1,0 +1,85 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Value: true
+      Cell Size: 0.1
+      Plane Cell Count: 20
+      Reference Frame: <Fixed Frame>
+    - Class: moveit_rviz_plugin/MotionPlanning
+      Name: MotionPlanning
+      Enabled: true
+      Value: true
+      Move Group Namespace: ""
+      Robot Description: robot_description
+      Planning Scene Topic: /monitored_planning_scene
+      Planning Request:
+        Planning Group: ur_manipulator
+        Query Goal State: false
+        Query Start State: false
+        Show Workspace: false
+      Scene Robot:
+        Robot Alpha: 1
+        Show Robot Visual: true
+        Show Robot Collision: false
+        Links:
+          All Links Enabled: true
+      Scene Geometry:
+        Show Scene Geometry: true
+        Scene Alpha: 0.8
+      Planned Path:
+        Trajectory Topic: /display_planned_path
+        Show Robot Visual: true
+        Show Robot Collision: false
+        Robot Alpha: 0.4
+        Loop Animation: false
+        Links:
+          All Links Enabled: true
+    - Class: rviz_default_plugins/Image
+      Name: Wrist Camera
+      Enabled: true
+      Value: true
+      Topic:
+        Value: /wrist_camera/image
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+      Transport Hint: raw
+  Enabled: true
+  Global Options:
+    Fixed Frame: world
+    Background Color: 48; 48; 48
+    Frame Rate: 30
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Target Frame: world
+      Distance: 1.7
+      Focal Point:
+        X: 0.20
+        Y: 0
+        Z: 0.95
+      Pitch: 0.45
+      Yaw: 0.8
+      Near Clip Distance: 0.01
+Window Geometry:
+  Width: 1280
+  Height: 800
+  Hide Left Dock: false
+  Hide Right Dock: false
