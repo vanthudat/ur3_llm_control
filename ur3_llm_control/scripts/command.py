@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 import time
 
@@ -22,9 +23,14 @@ FAILURE_PREFIXES = (
 
 
 class CommandClient(Node):
-    def __init__(self, command_topic: str, status_topic: str) -> None:
+    def __init__(
+        self, command_topic: str, status_topic: str, command: str,
+        verbose: bool = False
+    ) -> None:
         super().__init__("command_client")
         self.result: bool | None = None
+        self.command = command
+        self.verbose = verbose
         self.publisher = self.create_publisher(String, command_topic, 10)
         self.subscription = self.create_subscription(
             String, status_topic, self._on_status, 10
@@ -32,6 +38,31 @@ class CommandClient(Node):
 
     def _on_status(self, message: String) -> None:
         status = message.data
+        if not self.verbose:
+            if status == f"USER COMMAND: {self.command}":
+                return
+            if status.startswith("SUBSKILL:"):
+                # Keep the assignment-relevant manipulation skills visible while
+                # suppressing low-level planning diagnostics unless --verbose is used.
+                if not status.startswith((
+                    "SUBSKILL: open_gripper ", "SUBSKILL: close_gripper ",
+                    "SUBSKILL: move_above(", "SUBSKILL: move_to_zone("
+                )):
+                    return
+            if status.startswith("EXECUTION PLAN:"):
+                return
+            if status.startswith("EXECUTION: pause "):
+                return
+            if status.startswith("PLANNING_DETAIL:"):
+                return
+
+        execution = re.fullmatch(
+            r"EXECUTION: (.+?)\s+\.{2,}\s+"
+            r"(SUCCESS|FAILED|INVALID_STATE|PLANNING_FAILED)", status)
+        if execution and not self.verbose:
+            step, result = execution.groups()
+            marker = "✓" if result == "SUCCESS" else "✗"
+            status = f"{marker} {step} — {result}"
         print(status, flush=True)
         if status == "TASK SUCCESS":
             self.result = True
@@ -50,6 +81,10 @@ def parse_arguments(args: list[str]) -> argparse.Namespace:
         default=300.0,
         help="Maximum seconds to wait for the complete robot task",
     )
+    parser.add_argument(
+        "--verbose", action="store_true",
+        help="Print every subskill, planning detail and execution-plan message",
+    )
     parser.add_argument("--command-topic", default="/user_command")
     parser.add_argument("--status-topic", default="/task_status")
     return parser.parse_args(args)
@@ -67,7 +102,8 @@ def main(args=None) -> int:
         return 2
 
     rclpy.init(args=ros_args)
-    node = CommandClient(options.command_topic, options.status_topic)
+    node = CommandClient(
+        options.command_topic, options.status_topic, command, options.verbose)
     try:
         subscriber_deadline = time.monotonic() + 10.0
         while node.publisher.get_subscription_count() == 0:

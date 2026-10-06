@@ -16,9 +16,13 @@ namespace ur3_llm_control
 {
 namespace
 {
-const std::set<std::string> kObjects{"red_cube", "yellow_cube", "blue_cube"};
-const std::set<std::string> kZones{"zone_a", "zone_b", "zone_c"};
-constexpr std::size_t kMaxPlanSteps = 20U;
+const std::set<std::string> kObjects{"red_cube", "yellow_cube", "blue_cube", "green_cube", "purple_cube"};
+const std::set<std::string> kZones{
+  "zone_a", "zone_b", "zone_c",
+  "temp_0", "temp_1", "temp_2", "temp_3", "temp_4", "temp_5", "temp_6",
+  "temp_7", "temp_8", "temp_9", "temp_10", "temp_11", "temp_12", "temp_13",
+  "temp_14", "temp_15", "temp_16", "temp_17", "temp_18", "temp_19"};
+constexpr std::size_t kMaxPlanSteps = 40U;
 
 bool hasExactFields(const nlohmann::json & value, const std::set<std::string> & fields)
 {
@@ -38,7 +42,7 @@ std::string validatePlan(const nlohmann::json & root)
   if (!hasExactFields(root, {"plan"}) || !root.at("plan").is_array() ||
     root.at("plan").empty() || root.at("plan").size() > kMaxPlanSteps)
   {
-    return "top level must contain a non-empty 'plan' array with at most 20 steps";
+    return "top level must contain a non-empty 'plan' array with at most 40 steps";
   }
 
   std::string held_object;
@@ -138,7 +142,7 @@ public:
   {
     const auto plan_topic = parameter("plan_topic", std::string("/validated_plan"));
     const auto status_topic = parameter("status_topic", std::string("/task_status"));
-    inter_object_pause_seconds_ = parameter("inter_object_pause_seconds", 2.0);
+    inter_object_pause_seconds_ = parameter("inter_object_pause_seconds", 1.0);
     if (inter_object_pause_seconds_ < 0.0) {
       throw std::runtime_error("inter_object_pause_seconds must be non-negative");
     }
@@ -175,7 +179,7 @@ private:
     }
 
     try {
-      const auto plan = nlohmann::json::parse(encoded_plan);
+      auto plan = nlohmann::json::parse(encoded_plan);
       const auto validation_error = validatePlan(plan);
       if (!validation_error.empty()) {
         RCLCPP_ERROR(
@@ -185,8 +189,16 @@ private:
         return;
       }
 
+      if (!robot_skills_->validateEnvironmentPlan(plan)) {
+        publishStatus("EXECUTION_REJECTED: camera scene or destination preconditions invalid");
+        busy_ = false;
+        return;
+      }
+      // Preflight may replace a temporary slot with another observed, reachable slot.
+      RCLCPP_DEBUG(node_->get_logger(), "EXECUTION PLAN: %s", plan.dump().c_str());
+      publishStatus("EXECUTION PLAN: " + plan.dump());
       std::size_t index = 0U;
-      for (const auto & step : plan.at("plan")) {
+      for (auto & step : plan.at("plan")) {
         const auto skill = step.at("skill").get<std::string>();
         SkillStatus result = SkillStatus::FAILED;
         if (skill == "home") {
@@ -200,7 +212,23 @@ private:
         } else if (skill == "move_to_zone") {
           result = robot_skills_->moveToZone(step.at("zone").get<std::string>());
         } else if (skill == "pick") {
-          result = robot_skills_->pick(step.at("object").get<std::string>());
+          auto & next = plan.at("plan").at(index + 1U);
+          const auto planned_destination = next.at("zone").get<std::string>();
+          auto destination = next.at("zone").get<std::string>();
+          if (robot_skills_->checkTransfer(
+              step.at("object").get<std::string>(), destination))
+          {
+            next["zone"] = destination;
+            if (destination != planned_destination) {
+              const auto update = "EXECUTION PLAN UPDATE: temporary slot " +
+                planned_destination + " unavailable; use " + destination;
+              RCLCPP_WARN(node_->get_logger(), "%s", update.c_str());
+              publishStatus(update);
+            }
+            result = robot_skills_->pick(step.at("object").get<std::string>());
+          } else {
+            result = SkillStatus::INVALID_STATE;
+          }
         } else if (skill == "place") {
           result = robot_skills_->place(
             step.at("object").get<std::string>(), step.at("zone").get<std::string>());
@@ -222,7 +250,7 @@ private:
           index + 1U < plan.at("plan").size() &&
           plan.at("plan").at(index + 1U).at("skill").get<std::string>() == "pick";
         if (pause_before_next_pick) {
-          RCLCPP_INFO(
+          RCLCPP_DEBUG(
             node_->get_logger(), "Pausing %.1f seconds before the next object.",
             inter_object_pause_seconds_);
           publishStatus("EXECUTION: pause " +
@@ -231,6 +259,11 @@ private:
             std::chrono::duration<double>(inter_object_pause_seconds_));
         }
         ++index;
+      }
+      if (!robot_skills_->verifyFinalPlan(plan)) {
+        publishStatus("TASK_FAILED: final camera observation does not confirm the plan");
+        busy_ = false;
+        return;
       }
       RCLCPP_INFO(node_->get_logger(), "TASK SUCCESS");
       publishStatus("TASK SUCCESS");
@@ -248,7 +281,7 @@ private:
   std::shared_ptr<RobotSkills> robot_skills_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr plan_subscription_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr status_publisher_;
-  double inter_object_pause_seconds_{2.0};
+  double inter_object_pause_seconds_{1.0};
   std::atomic_bool busy_{false};
 };
 }  // namespace ur3_llm_control

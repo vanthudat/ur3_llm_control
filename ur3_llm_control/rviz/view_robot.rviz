@@ -1,0 +1,76 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Value: true
+      Cell Size: 0.1
+      Plane Cell Count: 20
+      Reference Frame: <Fixed Frame>
+    - Class: rviz_default_plugins/RobotModel
+      Name: UR3e and Gripper
+      Enabled: true
+      Value: true
+      Alpha: 1
+      Visual Enabled: true
+      Collision Enabled: false
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Depth: 1
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+      TF Prefix: ""
+      Update Interval: 0
+      Links:
+        All Links Enabled: true
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+    - Class: rviz_default_plugins/Image
+      Name: Wrist Camera
+      Enabled: true
+      Value: true
+      Topic:
+        Value: /wrist_camera/image
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+      Transport Hint: raw
+  Enabled: true
+  Global Options:
+    Fixed Frame: world
+    Background Color: 48; 48; 48
+    Frame Rate: 20
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Target Frame: world
+      Distance: 1.7
+      Focal Point:
+        X: 0.20
+        Y: 0
+        Z: 0.95
+      Pitch: 0.45
+      Yaw: 0.8
+      Near Clip Distance: 0.01
+Window Geometry:
+  Width: 1280
+  Height: 800
+  Hide Left Dock: false
+  Hide Right Dock: false
