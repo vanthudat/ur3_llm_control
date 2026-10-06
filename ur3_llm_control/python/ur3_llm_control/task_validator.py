@@ -6,8 +6,7 @@ import json
 from typing import Any
 
 
-ALLOWED_OBJECTS = frozenset({"red_cube", "yellow_cube", "blue_cube", "green_cube", "purple_cube"})
-TEMPORARY_ZONES = frozenset(f"temp_{i}" for i in range(20))
+ALLOWED_OBJECTS = frozenset({"red_cube", "yellow_cube", "blue_cube"})
 ALLOWED_ZONES = frozenset({"zone_a", "zone_b", "zone_c"})
 SKILL_FIELDS = {
     "home": frozenset({"skill"}),
@@ -18,7 +17,7 @@ SKILL_FIELDS = {
     "place": frozenset({"skill", "object", "zone"}),
     "move_to_zone": frozenset({"skill", "zone"}),
 }
-MAX_PLAN_STEPS = 40
+MAX_PLAN_STEPS = 20
 
 
 class PlanValidationError(ValueError):
@@ -62,7 +61,7 @@ def validate_plan(value: Any) -> dict[str, list[dict[str, str]]]:
             raise PlanValidationError(f"{label} must be an object")
 
         skill = raw_step.get("skill")
-        if not isinstance(skill, str) or skill not in SKILL_FIELDS:
+        if skill not in SKILL_FIELDS:
             raise PlanValidationError(f"{label} contains unsupported skill {skill!r}")
         if set(raw_step) != SKILL_FIELDS[skill]:
             raise PlanValidationError(f"{label} has missing or unexpected fields")
@@ -73,7 +72,7 @@ def validate_plan(value: Any) -> dict[str, list[dict[str, str]]]:
         zone_name = raw_step.get("zone")
         if object_name is not None and object_name not in ALLOWED_OBJECTS:
             raise PlanValidationError(f"{label} contains invalid object {object_name!r}")
-        if zone_name is not None and zone_name not in ALLOWED_ZONES | TEMPORARY_ZONES:
+        if zone_name is not None and zone_name not in ALLOWED_ZONES:
             raise PlanValidationError(f"{label} contains invalid zone {zone_name!r}")
 
         if skill == "pick":

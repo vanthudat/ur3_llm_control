@@ -15,6 +15,7 @@ find_package(moveit_ros_planning_interface REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(ros_gz_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(shape_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -33,9 +34,9 @@ ament_target_dependencies(robot_skills
   moveit_ros_planning_interface
   rclcpp
   rclcpp_action
+  ros_gz_interfaces
   sensor_msgs
   shape_msgs
-  std_msgs
   trajectory_msgs
 )
 
@@ -43,21 +44,17 @@ add_executable(skill_executor src/skill_executor.cpp)
 target_link_libraries(skill_executor robot_skills nlohmann_json::nlohmann_json)
 ament_target_dependencies(skill_executor rclcpp std_msgs)
 
-target_link_libraries(robot_skills nlohmann_json::nlohmann_json)
-
 ament_python_install_package(${PROJECT_NAME} PACKAGE_DIR python/${PROJECT_NAME})
 
 install(PROGRAMS scripts/llm_planner.py
   DESTINATION lib/${PROJECT_NAME}
   RENAME llm_planner
 )
-install(PROGRAMS scripts/camera_state.py DESTINATION lib/${PROJECT_NAME} RENAME camera_state)
-install(PROGRAMS scripts/gripper_startup.py DESTINATION lib/${PROJECT_NAME} RENAME gripper_startup)
 install(PROGRAMS scripts/command.py
   DESTINATION lib/${PROJECT_NAME}
   RENAME command
 )
-install(DIRECTORY config launch rviz srdf urdf worlds DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config launch srdf urdf worlds DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY include/ DESTINATION include)
 install(TARGETS robot_skills skill_executor
   ARCHIVE DESTINATION lib
@@ -66,12 +63,8 @@ install(TARGETS robot_skills skill_executor
 )
 
 if(BUILD_TESTING)
-  foreach(test_name task_validator environment perception)
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/test_${test_name}.py")
-      find_package(ament_cmake_pytest REQUIRED)
-      ament_add_pytest_test(${test_name}_test test/test_${test_name}.py)
-    endif()
-  endforeach()
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(task_validator_test test/test_task_validator.py)
 endif()
 
 ament_package()
